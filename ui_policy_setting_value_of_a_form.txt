@@ -1,0 +1,41 @@
+UI POLICY
+
+function onCondition() {
+    var fornitore = g_form.getDisplayBox('u_fornitore').value;
+    var ga = new GlideAjax('global.isFornitureManager'); //Scriptinclude
+    ga.addParam("sysparm_name", "isFornitureManager");
+    ga.addParam("sysparm_buildingid", fornitore); //Method
+    ga.getXMLAnswer(getResponse);
+
+	function getResponse(answer) {
+        if (answer !== "true") {
+            g_form.setReadOnly('u_stato', true);
+            g_form.setReadOnly('u_assegnata_a', true);
+        }
+    }
+}
+
+SCIRPT INCLUDE
+
+var isFornitureManager = Class.create();
+isFornitureManager.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+	isFornitureManager: function (){
+		var fornitureId = this.getParameter('sysparm_buildingid');
+		var userId = gs.getUserID();
+		gs.info("VALERIO SCRIPT INCLUDE FORNITURE ID = " + fornitureId + " e USER SYS ID = " + userId)
+		var gr = new GlideRecord ("sys_user_grmember")
+		gr.addEncodedQuery("group.name="+ fornitureId + "^user=" + userId)
+		gr.query();
+		if(gr.next()){
+			//var userRoles = gs.getUser().getRoles();
+			//gs.info("VALERIO RUOLI USER =" + userRoles)
+			var isManager = gs.getUser().hasRole('manager')
+			gs.info("VALERIO ISMANAGER = " + isManager)
+			if (isManager){
+				gs.info("VALERIO L'UTENTE E UN MANAGER")
+				return true
+			}
+		} else return false
+	},
+    type: 'isFornitureManager'
+});

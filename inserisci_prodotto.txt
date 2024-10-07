@@ -1,0 +1,124 @@
+HTML
+
+div>
+  <!-- Modal -->
+  <div class="modal" tabindex="-1" role="dialog" ng-if="c.modal">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+       <div class="modal-header">
+          <h5 class="modal-title">Nuovo prodotto</h5>
+        </div>
+        <div class="modal-body">
+          <p>
+            <form>
+              <div class="form-group mb-3">
+                <label for="name" class="form-label">Nome Prodotto</label>
+                <input type="text" class="form-control" ng-model="c.name" id="name" required>
+              </div>
+              <div class="mb-3">
+                <label for="sc-client" class="form-label">Tipo</label>
+                <select class="form-select" aria-label="Default select example" ng-model="c.productType" required>
+                  <option value="{{product.value}}" ng-repeat="product in c.productList">{{product.label}}</option>
+                </select>
+              </div>
+               <div class="form-group mb-3">
+                <label for="price" class="form-label">Prezzo</label>
+                <input type="number" class="form-control" ng-model="c.price" id="price" required>
+              </div>
+             </form>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <div class="justify-content-center align-items-center">
+            <button type="button" class="btn btn-primary" ng-click=" c.insertProduct()">Salva</button>
+            <button type="button" class="btn btn-secondary" ng-click="c.modal=false">Chiudi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Button insert new receip -->
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-4 d-flex justify-content-center">
+        <button class="btn btn-light btn-lg" ng-click="c.modal = true">Aggiungi prodotto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+SERVER CONTROLLER
+
+ if (input) {
+		if (input && input.action == "insertProduct") {
+            var newProduct = new SpInsertProduct();
+			data.insertResponse= newProduct.insertProduct(input.parameter1,input.parameter2,input.parameter3);
+        }
+
+
+
+CLIENT CONTROLLER
+
+api.controller=function() {
+  /* widget controller */
+  var c = this;
+  c.modal = false;
+  c.name = "";
+  c.productList = [
+	{
+		label : "Smartphone",
+		value : "smartphone",
+	},
+	{
+		label : "Computer",
+		value : "computer",
+	},
+	{
+		label : "Tv",
+		value : "tv",
+	}
+  ]
+  c.productType="";
+  c.price = "";
+
+  c.insertProduct = function() {
+        c.server.get({
+			parameter1: c.name,
+			parameter2: c.productType,
+			parameter3: c.price,
+            action: "insertProduct"
+        }).then(function(response) {
+            //Process your response
+            c.data.response = response.data.insertResponse;
+            if (c.data.response){
+				alert("Prodotto aggiunto");
+				location.reload();
+			} else {
+				alert("Si è verificato un problema: prodotto non aggiunto");
+			}
+			c.modal = false;
+        });
+    };
+};
+
+
+SCRIPT INCLUDE 
+
+var SpInsertProduct = Class.create();
+SpInsertProduct.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+	insertProduct: function(name,type,price){
+		var gr = new GlideRecord("u_prodotto");
+		gr.initialize();
+		gr.u_name = name;
+		gr.u_type = type;
+		gr.u_prezzo = price;
+		var insertOk = gr.insert();
+		if (insertOk){
+			return true;
+		} else {
+			return false;
+		}
+	},
+    type: 'SpInsertProduct'
+});

@@ -1,0 +1,225 @@
+SERVER CONTROLLER:
+
+(function() {
+    /* populate the 'data' object */
+    /* e.g., data.table = $sp.getValue('table'); */
+    if (input) {
+		if (input && input.action == "filterProducts") {
+            var filterPr = new SpFilterProducts();
+			data.filteredProducts = filterPr.getFilterProducts(input.parameter1);
+			console.log(data.filteredProducts);
+			//data.insertResponse= filterPr.getFilterProducts(input.parameter1);
+        }
+		if(input && input.action == "sendOrder"){
+			var order = new SpOrderProducts();
+			data.response = order.sendOrder(input.parameter1);
+			var productsAfterStock = new SpAllProducts();
+			data.prodotti = productsAfterStock.getProducts();
+		}
+		if (input && input.action == "zeroFilters") {
+            var zeroFiltrers = new SpAllProducts();
+		    data.filteredProducts= zeroFiltrers.getProducts();
+        }
+    } else {
+		var grProducts = new SpAllProducts();
+		data.products= grProducts.getProducts();
+		data.userSysId= gs.getUserID();
+		data.userName = gs.getUserDisplayName()
+    }
+})();
+
+CLIENT CONTROLLER
+
+api.controller = function() {
+    /* widget controller */
+    var c = this;
+
+    //Filter
+    c.productAreFiltered = false;
+    c.productSelected = c.data.products;
+    c.priceOperator = "";
+    c.priceValue = "";
+    c.filterType = "";
+    c.queryString = "";
+    c.modalStock = false;
+    c.notShopAssistant;
+    c.userSysId = c.data.userSysId
+	c.shopAssistantName = c.data.userName
+    c.productId = "";
+    c.productSysId = "";
+    c.feedback = "";
+
+    if ($rootScope.shopAssistant != true) {
+        c.notShopAssistant = true;
+    } else {
+        c.notShopAssistant = false;
+    }
+
+    c.stockModal = function(product) {
+        console.log(product.id)
+        c.feedback = '';
+        c.productId = product.id;
+        c.productSysId = product.sysId;
+        c.productName = product.name;
+		c.productTypeValue = product.typeValue;
+        c.modalStock = true;
+        c.stockQuantity = "";
+    };
+
+    c.sendOrder = function() {
+        if (c.stockQuantity == "" || c.stockQuantity == 0) {
+            c.feedback = "Inserisci la quantità dei prodotti da ordinare"
+            return
+        }
+        c.feedback = '';
+        c.data = {};
+        c.data.productSysId = c.productSysId
+        c.data.stockQuantity = c.stockQuantity
+        c.data.shopAssistant = c.userSysId;
+		c.data.shopAssistantName = c.shopAssistantName;
+        c.data.productName = c.productName;
+		c.data.productType = c.productTypeValue;
+        console.log("data = " + JSON.stringify(c.data))
+        c.server.get({
+            parameter1: c.data,
+            action: "sendOrder"
+        }).then(function(response) {
+            console.log("La risposta è:" + response.data.response);
+            if (response.data.response == true) {
+                c.priceOperator = "";
+                c.priceValue = "";
+                c.filterType = "";
+                c.queryString = "";
+                c.modalStock = false;
+                c.productSelected = response.data.prodotti;
+                c.feedback = true;
+            } else {
+                c.modalStock = false;
+                c.feedback = false;
+            }
+        });
+    }
+
+    c.filterProducts = function() {
+        c.queryString = "";
+        //Prezzo inserito
+        if (c.priceOperator != "" && c.priceValue != "") {
+            c.queryString = "";
+            c.queryString += "u_prezzo" + c.priceOperator + c.priceValue;
+            if (c.filterType != "") {
+                c.queryString += "^u_type=" + c.filterType;
+            }
+        }
+        //Filtro inserito
+        if (c.filterType != "" && (!c.priceOperator || !c.priceValue)) {
+            c.queryString = "";
+            c.queryString += "u_type=" + c.filterType;
+        }
+        console.log("QueryString = " + c.queryString);
+        c.server.get({
+            parameter1: c.queryString,
+            action: "filterProducts"
+        }).then(function(response) {
+            c.productSelected = response.data.filteredProducts;
+            if (c.productSelected) {
+                c.currentPage = 1;
+                c.totalPages = Math.ceil(c.productSelected.length / c.pageSize);
+                console.log(response.data.filteredProducts)
+                console.log(c.productSelected);
+                console.log("totale pagine = " + c.totalPages);
+            } else {
+                alert("Si è verificato un problema!");
+            }
+        });
+    };
+    //Azzera filtri
+    c.zeroFilters = function() {
+        c.server.get({
+            action: "zeroFilters"
+        }).then(function(response) {
+            c.priceOperator = "";
+            c.priceValue = "";
+            c.filterType = "";
+            c.queryString = "";
+            c.productSelected = response.data.filteredProducts;
+            if (c.productSelected) {
+                c.totalPages = Math.ceil(c.productSelected.length / c.pageSize);
+                c.currentPage = 1;
+                console.log(response.data.filteredProducts);
+                console.log(c.productSelected);
+            } else {
+                alert("Si è verificato un problema!");
+            }
+        });
+    };
+
+
+    /*c.log= function(){
+	console.log("priceOperator = " + c.priceOperator);
+	console.log("priceValue = " + c.priceValue);
+	console.log("filterType = " + c.filterType)
+  };*/
+
+    //Page
+    c.pageSize = 8;
+    c.pageCount = 8;
+    c.currentPage = 1;
+    c.totalPages = Math.ceil(c.productSelected.length / c.pageSize);
+    //console.log("Record trovati: " + c.data.receips.length);
+    //console.log("Pagine totali: " + c.totalPages);
+
+    c.previousPage = function() {
+        if (c.currentPage > 1) {
+            c.currentPage -= 1;
+            //console.log("La pagina attuale è la numero " + c.currentPage);
+        }
+    }
+    c.nextPage = function() {
+        if (c.currentPage < c.totalPages) {
+            c.currentPage += 1;
+            //console.log("La pagina attuale è la numero " + c.currentPage);
+        }
+    }
+};
+
+
+SCRIPT INCLUDE FILTER 
+
+var SpFilterProducts = Class.create();
+SpFilterProducts.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+	getFilterProducts: function(queryString){
+		prodotti = [];
+		var gr = new GlideRecord("u_prodotto");
+		var i = 0;
+		var currentPage = 1;
+		//gs.info("VALERIO QUERY PRODOTTO = " + queryString) ;
+		gr.addEncodedQuery(queryString);
+		gr.query();
+		while (gr.next()) {
+			i ++;
+			if (i == 9){
+				currentPage++;
+				i = 1;
+			}
+            var prodotto = {};
+            prodotto.id = gr.u_product_id.toString();
+			prodotto.sysId = gr.getUniqueValue();
+            prodotto.name = gr.u_name.toString();
+            prodotto.type = gr.u_type.getDisplayValue().toString();
+            prodotto.price = gr.u_prezzo.toString();
+			prodotto.page = currentPage;
+			prodotto.stock;
+
+			var newGr = new GlideRecord("u_stock_prodotti")
+			newGr.addEncodedQuery("u_id_prodotto=" + prodotto.sysId)
+			newGr.query();
+			if(newGr.next()){
+				prodotto.stock = newGr.u_in_stock.toString();
+			}
+
+			prodotti.push(prodotto);
+        }
+        return prodotti;
+	},
+    type: 'SpFilterProducts'
+});

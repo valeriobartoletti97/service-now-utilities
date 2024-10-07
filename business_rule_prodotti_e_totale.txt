@@ -1,0 +1,66 @@
+(function executeRule(current, previous /*null when async*/ ) {
+    var gr = new GlideRecord("u_prodotto_scontrino");
+    var scontrinoID = current.getUniqueValue("u_scontrino_id");
+    var recurringCustomer = current.getValue("u_cliente_ricorrente");
+    var totalPrice = 0;
+    var totalQuantity = 0;
+    var i = 1;
+    var productQuantity;
+    var productIdDisplay;
+    var productID;
+    var productPrice;
+    gs.info("VALERIO " + recurringCustomer + " SCONTRINO ID =" + scontrinoID);
+    //gs.info('VALERIO' + scontrinoID);
+    gr.addEncodedQuery("u_scontrino_id=" + scontrinoID);
+    gr.query();
+    while (gr.next()) {
+        //gs.info("VALERIO E' STATO TROVATO UN RECORD DALLA TABELLA PRODOTTI SCONTRINO")
+        gs.info("VALERIO CICLO NUMERO: " + i);
+        i++;
+        productQuantity = gr.u_quantita;
+        productIdDisplay = gr.u_prodotto_id.getDisplayValue();
+        productID = gr.u_prodotto_id;
+        productGr = new GlideRecord("u_prodotto");
+        productGr.addEncodedQuery("u_product_id=" + productIdDisplay);
+        productGr.query();
+        if (productGr.next()) {
+            productPrice = productGr.u_prezzo;
+		    var priceToPay = productPrice * productQuantity;
+            //prezzo da pagare di default
+            if (recurringCustomer == "1") {
+                var sconto = 5 / 100;
+                priceToPay -= priceToPay * sconto;
+                gs.info("VALERIO PREZZO DA PAGARE = " + priceToPay + " SCONTATO DEL 5%");
+            } else {
+				gs.info("VALERIO PREZZO DA PAGARE = " + priceToPay + " NON SCONTATO");
+			}
+        }
+		//prezzo totale
+            totalPrice += priceToPay;
+            totalQuantity += productQuantity;
+			gs.info("VALERIO TOTALE PREZZO = " + totalPrice);
+    }
+
+	//set price
+    gs.info("VALERIO TOTALE SCONTRINI DA PAGARE = " + totalPrice);
+    gs.info("VALERIO TOTALE PRODOTTI DA PAGARE = " + totalQuantity);
+    current.setValue("u_numero_prodotti", totalQuantity);
+    current.setValue("u_totale", totalPrice);
+    gs.info("VALERIO FINE FUNZIONE");
+    current.update();
+	
+    //send mail
+    var shopAssistant = current.getValue("u_commesso");
+    var client = current.getValue("u_cliente");
+    var appObj = {};
+    appObj.quantity = totalQuantity.toString();
+    appObj.price = totalPrice.toString();
+    appObj.shopAssistant = shopAssistant.toString();
+    gs.info("VALERIO QUESTO E LO SHOP ASSISTANT: " + shopAssistant);
+    gs.info("VALERIO QUESTO E IL CLIENTE: " + client);
+    var objString = JSON.stringify(appObj);
+    gs.info("VALERIO QUESTO E IL PARM 2 DALLA BUSINESS RULE: " + JSON.stringify(appObj));
+
+    gs.eventQueue("purchase_confirmed", current, client, objString);
+
+})(current, previous);

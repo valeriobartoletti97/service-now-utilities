@@ -1,0 +1,70 @@
+RIVEDERE BENE PER VENERDì:
+
+- Creazione tabelle  
+- Campi
+- Business Rules
+- Client script
+- Script include
+- UI action
+- UI policy 
+- SLA
+
+Venerdì faremo 3 ore di riunione con Daniele che inizierà a spiegarmi nell'effettivo una introduzione su ServiceNow
+
+- SLA (Service Level Agreement): Il Service Level Agreement è uno strumento contrattuale attraverso il quale viene definita la metrica di servizio (ad esempio la qualità del servizio) 
+che deve essere rispettata da un fornitore di servizi(provider) nei confronti dei propri clienti/utenti. 
+Di fatto, una volta stipulato il contratto, assumono il significato di obblighi contrattuali.
+
+- TABELLE: Sono una raccolta di dati nel Database. Ogni riga di una tabella corrisponde ad un record, ogni colonna corrisponde ad un campo.
+ • Le tabelle che esistono nel «base system» sono chiamate Core Tables:
+
+ • Task: Parent, Base, Core
+ • Incident: Child, Core
+
+ • Le tabelle create da un Sys Admin sono chiamate Custom Tables:
+ • Prefisso u_
+
+ • Reference Table: tabella che viene referenziata mediante l’uso di un campo di tipo «Reference»:
+    • Incident(Reference to)→User(Referenced by
+
+- Business Rule (BR): Sono degli script lato server che vengono eseguiti quando un record viene per esempio inserito o aggiornato. Vengono eseguite in base a due criteri: 
+    ✓ Il momento per il quale è configurata per l'esecuzione relativamente a un record 
+      che viene modificato o acceduto (before, after, async, display).
+    ✓ Il tipo di operazione che il sistema effettua sul record (insert, update, query, 
+      delete).
+
+- UI ACTION: Includono pulsanti, link e voci del menu di scelta rapida sia sui Form che sulle List.
+ Vengono utilizzate per rendere l'interfaccia utente più interattiva, personalizzata e specifica per le attività dell'utente.
+
+- UI POLICY: Le UI Policies modificano in modo dinamico il comportamento delle informazioni su un Form e permettono di personalizzare il Process Flow per le attività. 
+Ad esempio, è possibile utilizzare le UI Policies per:
+ • rendere un campo di sola lettura
+ • rendere obbligatorio un campo
+ • nascondere alcuni Field
+
+- CLIENT SCRIPTS: consentono al sistema di eseguire JavaScript sul 
+client (browser Web) al verificarsi di determinati eventi:
+ • onLoad()
+ • onSubmit(),
+ • onChange()
+ • onCellEdit()
+ Vengono utilizzati per configurare i Form, i suoi campi e/o i 
+loro valori mentre l'utente utilizza il Form.
+
+    Possono:
+    ✓rendere i campi nascosti o visibili
+    ✓rendere i campi di sola lettura o modificabili
+    ✓rendere campi facoltativi o obbligatori in base al ruolo 
+     dell'utente 
+    ✓impostare il valore in un campo in base al valore in altri 
+     campi 
+    ✓modificare le opzioni in un campo di tipo Choice in base al 
+     ruolo dell'utente 
+    ✓visualizzare messaggi in base a un valore in un camp
+
+ESEMPIO CLIENT SCRIPT: Se al campo "Categoria" do un determinato valore, posso far scomparire un valore da un altro campo.
+
+- SCRIPT INCLUDE (SI USA PER CERCARE I RECORD. QUINDI e' l'u) : vengono utilizzati per memorizzare codice JavaScript riutilizzabile che gira sul server. 
+Si utilizzano gli Script Include per memorizzare JavaScript functions e classes da richiamare nei Server-Side Script. 
+TIPS: occorre considerare l’utilizzo degli Script Include al posto delle Business Rule(global) perché gli Script Include vengono caricati solo su richiesta 
+mentre una BR viene eseguita ogni volta che un Form viene caricato.

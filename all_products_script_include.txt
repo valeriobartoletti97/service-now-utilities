@@ -1,0 +1,36 @@
+var SpAllProducts = Class.create();
+SpAllProducts.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+	getProducts: function(){
+		prodotti = [];
+		var i = 0;
+		var currentPage = 1;
+        var gr = new GlideRecord('u_prodotto');
+        gr.query();
+        while (gr.next()) {
+			i ++;
+			if (i == 9){
+				currentPage++;
+				i = 1;
+			}
+            var prodotto = {};
+            prodotto.id = gr.u_product_id.toString();
+			prodotto.sysId = gr.getUniqueValue();
+            prodotto.name = gr.u_name.toString();
+            prodotto.type = gr.u_type.getDisplayValue().toString();
+			prodotto.typeValue = gr.u_type.getValue().toString();
+            prodotto.price = gr.u_prezzo.toString();
+			prodotto.page = currentPage;
+			prodotto.stock;
+
+			var newGr = new GlideRecord("u_stock_prodotti")
+			newGr.addEncodedQuery("u_id_prodotto=" + prodotto.sysId)
+			newGr.query();
+			if(newGr.next()){
+				prodotto.stock = newGr.u_in_stock.toString();
+			}
+			prodotti.push(prodotto);
+        }
+        return prodotti;
+	},
+    type: 'SpAllProducts'
+});

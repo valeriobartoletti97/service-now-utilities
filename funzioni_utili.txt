@@ -1,0 +1,41 @@
+PAGINAZIONE PORTAL
+
+c.pageSize = 8;
+    c.pageCount = 8;
+    c.currentPage = 1;
+	c.totalPages = Math.ceil(c.receipSelected.length / c.pageSize);
+	//console.log("Record trovati: " + c.data.receips.length);
+	//console.log("Pagine totali: " + c.totalPages);
+
+	c.previousPage = function(){
+		if(c.currentPage > 1){
+			c.currentPage -= 1;
+			console.log("La pagina attuale è la numero " + c.currentPage);
+		}
+	};
+	c.nextPage = function(){
+		if(c.currentPage < c.totalPages){
+			c.currentPage += 1;
+			console.log("La pagina attuale è la numero " + c.currentPage);
+		}
+	};
+	c.parseDate = function(){
+		c.dataParsed = new Date(c.filteredData+"z").toISOString().split('T')[0];
+		console.log(c.dataParsed);
+	};
+
+
+CONVERTIRE DATA IN FORMATO (yyyy+mm+gg)
+
+c.convertDate = function(date) {
+	c.yyyy = date.getFullYear().toString();
+	c.mm = (date.getMonth()+1).toString();
+	c.dd  = date.getDate().toString();
+
+	c.mmChars = c.mm.split('');
+	c.ddChars = c.dd.split('');
+
+	return c.yyyy + '-' + (c.mmChars[1]?c.mm:"0"+c.mmChars[0]) + '-' + (c.ddChars[1]?c.dd:"0"+c.ddChars[0]);
+	};
+	c.todaysDate = c.convertDate(c.date);
+	console.log(c.todaysDate);
