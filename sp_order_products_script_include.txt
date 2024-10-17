@@ -1,0 +1,53 @@
+var SpOrderProducts = Class.create();
+SpOrderProducts.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+    sendOrder: function(data) {
+        var gr = new GlideRecord("u_stock_prodotti");
+        gr.addEncodedQuery("u_id_prodotto=" + data.productSysId)
+        gr.query();
+        if (gr.next()) {
+
+            var forTelefoniId = "dc7c7a4583c11210d69effefeeaad3b5";
+            var forComputerId = "0abcfe4583c11210d69effefeeaad3ba";
+            var forTelevisoriId = "0eac3a4583c11210d69effefeeaad371";
+            var rr = new GlideRecord("u_richieste_rifornimenti")
+
+            //inserisco una nuova richiesta rifornimento
+
+            rr.initialize();
+            if (data.productType === "smartphone") {
+                rr.setValue("u_fornitore", forTelefoniId, "fornitore_telefoni")
+            }
+			if (data.productType === "computer") {
+                rr.setValue("u_fornitore", forComputerId, "fornitore_computer")
+            }
+			if (data.productType === "tv") {
+                rr.setValue("u_fornitore", forTelevisoriId, "fornitore_televisori")
+            }
+
+			rr.setValue("u_richiedente",data.shopAssistant, data.shopAssistantName);
+			rr.setValue("u_prodotto",data.productSysId,data.productName);
+			rr.setValue("u_quantita", Number(data.stockQuantity));
+			rr.setValue("u_stato", "in_lavorazione", "In Lavorazione");
+			rr.insert();
+
+
+            //gr.u_in_stock += data.stockQuantity
+            var feedback = gr.update()
+            if (feedback) {
+                var obj = {}
+                obj.productName = data.productName;
+                obj.productQuantity = data.stockQuantity;
+                var shopAssistant = data.shopAssistant.toString();
+                var objString = JSON.stringify(obj)
+                gs.info("VALERIO QUESTA è lo shopAssistant: " + shopAssistant + "E QUESTO è l'oggetto PASSATO IN QUEUE" + objString)
+
+                gs.eventQueue("new_stock_order", gr, shopAssistant, objString);
+                return true
+            } else {
+                return false;
+            }
+        }
+        return;
+    },
+    type: 'SpOrderProducts'
+});

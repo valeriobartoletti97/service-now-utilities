@@ -1,0 +1,20 @@
+function onChange(control, oldValue, newValue, isLoading, isTemplate) {
+   if (isLoading || newValue === '') {
+      return;
+   }
+	//Call script include
+	var ga = new GlideAjax('global.ClienteAbituale');   //Scriptinclude
+	ga.addParam("sysparm_name", "clienteAbituale");
+	ga.addParam("sysparm_buildingid", newValue); //Method
+	ga.getXMLAnswer(getResponse);
+	
+   //Type appropriate comment here, and begin script below
+}
+
+function getResponse(answer){
+	if(answer === "true"){
+		g_form.setValue("u_cliente_ricorrente",true);
+	} else {
+		g_form.setValue("u_cliente_ricorrente",false);
+	}
+}

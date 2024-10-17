@@ -1,0 +1,4 @@
+outbound: rest message 
+inbound: scripted rest api
+rest api Explorer
+{"descrizione":"sdjnwmie","numero": "3","stato": "closed","data": "2024-10-11"}

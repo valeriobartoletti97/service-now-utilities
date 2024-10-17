@@ -1,3 +1,142 @@
+HTML: 
+
+<!-- Modal Stock -->
+  <div class="modal" tabindex="-1" role="dialog" ng-if="c.modalStock" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Ordina prodotto</h5>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="product-id-show" class="form-label">Prodotto Id</label>
+            <input type="text" class="form-control" id="product-id-show" ng-model="c.productId" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="product-price-update me-4" class="form-label">Quantità</label>
+            <span class="text-danger" ng-if="c.feedback != false && c.feedback != true && c.feedback != ''">{{c.feedback}}</span>
+            <input type="number" class="form-control" id="product-price-update" ng-model="c.stockQuantity">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="justify-content-center align-items-center">
+            <button
+                    type="button"
+                    class="btn btn-primary me-1"
+                    ng-click="c.sendOrder()"
+                    >
+              Ordina
+            </button>
+            <button
+                    type="button"
+                    class="btn btn-secondary"
+                    ng-click="c.modalStock=false"
+                    >
+              Chiudi
+            </button>
+          </div>
+         </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-4">
+      <h1 class="text-uppercase text-center fw-bold mb-3 mt-4">Prodotti</h1>
+    </div>
+  </div>
+  <div ng-if="c.feedback == true" class="alert alert-primary text-center position-relative mt-2" role="alert">
+    <h4 class="alert-heading py-4">Prodotti ordinati!</h4>
+    <i class="fa-solid fa-xmark position-absolute" ng-click="c.feedback = ''"></i>
+  </div>
+  <div class="row">
+    <div class="col-4">
+      <h5 class="mb-1">Filtra per prezzo:</h5>
+    </div>
+  </div>
+   <div class="row justify-content-start align-items-center">
+    <div class="col-2">
+      <select class="form-control" aria-label="Default select example" ng-model="c.priceOperator" placeholder="Seleziona filtro prezzo..." required>
+        <option disabled selected value> --- Seleziona un'opzione --- </option>
+        <option value=">">Maggiore di</option>
+        <option value="<">Minore di</option>
+        <option value="=">Uguale a</option>
+      </select>
+    </div>
+    <div class="col-2">
+      <input type="number" style="width:100%" class="form-control" name="filterPrice" id="filterPrice" placeholder="Prezzo" ng-model="c.priceValue">
+    </div>
+  </div>
+  <div class="row mt-2">
+    <div class="col-4">
+      <h5 class="mb-1">Filtra per tipo:</h5>
+    </div>
+  </div>
+   <div class="row justify-content-start align-items-center">
+    <div class="col-2">
+      <select class="form-control" aria-label="Default select example" ng-model="c.filterType" placeholder="Seleziona filtro prezzo..." required>
+        <option disabled selected value> --- Seleziona un'opzione --- </option>
+        <option value="smartphone">Smartphone</option>
+        <option value="computer">Computer</option>
+        <option value="tv">Tv</option>
+      </select>
+     </div>
+     <div class="col-2 d-flex justify-content-start align-items-center">
+     <button type="button" class="btn btn-lg btn-primary text-uppercase me-3" ng-click="c.filterProducts()">Cerca</button>
+     <button type="button" class="btn btn-lg btn-secondary text-uppercase" ng-click="c.zeroFilters()">Azzera filtri</button>
+    </div>
+  </div>
+  
+  <!--Cards-->
+  <div class="row justify-content-center" ng-if="c.productSelected.length < 1">
+    <h5 class="text-center mt-5">Nessun risultato trovato</h5>
+  </div>
+  <div class="row justify-content-start mt-3">
+    <div class="col-sm-6 col-md-3 col-12 py-3" ng-repeat="product in c.productSelected" ng-if="c.currentPage == product.page">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-center mb-0 py-1">{{product.name}}</h5>
+        </div>
+        <ul class="list-group list-group-flush pt-3">
+          <li class="list-group-item">
+            <span class="type-label me-2">Tipo:</span>
+            <span class="type-value fw-bold">{{product.type}}</span>
+          </li>
+          <li class="list-group-item">
+            <span class="type-label me-2">Prezzo:</span>
+            <span class="type-value fw-bold">{{product.price}}$</span>
+          </li>
+          <li class="list-group-item">
+            <span class="type-label me-2">Stock:</span>
+            <span class="type-value fw-bold">{{product.stock}}</span>
+          </li>
+        </ul>
+        <div class="d-flex justify-content-end m-2" ng-if="c.notShopAssistant != true">
+          <button type="button" class="btn btn-outline-dark me-1 d-flex align-items-center stock-btn" ng-click="c.stockModal(product)"><i class="fa-solid fa-cart-plus p-1"></i></button>
+        </div>
+      </div>
+    </div>
+    
+    <!--Pagination-->
+    <div class="row justify-content-center my-3">
+      <div class="col-4 d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item me-1"> <a class="page-link" href="" aria-label="Previous" ng-click="c.previousPage()">
+                <span aria-hidden="true">&laquo;</span>
+              </a></li>
+            <li class="page-item me-1"><a class="page-link" href="">{{c.currentPage}}</a></li>
+            <li class="page-item"><a class="page-link" href="" aria-label="Next" ng-click="c.nextPage()">
+                <span aria-hidden="true">&raquo;</span>
+              </a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 SERVER CONTROLLER:
 
 (function() {
