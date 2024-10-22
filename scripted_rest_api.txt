@@ -1,0 +1,31 @@
+(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+	//gs.info("VALERIO CIAO");
+	var recordSysId;
+    var params = request.body.nextEntry();
+	var numero = params.numero.toString();
+	var stato = params.stato.toString();
+	var descrizione = params.descrizione.toString();
+	var data = params.data.toString();
+	//gs.info("VALERIO QUESTI SONO I PARAMS DELL'API = " + JSON.stringify(params));
+
+	//log dei parametri e di errore
+	numero == "" ?  gs.info("VALERIO Errore nella ricezione del parametro: numero = ''") : gs.info("VALERIO parametro numero = " + numero)
+	stato == "" ?  gs.info("VALERIO Errore nella ricezione del parametro: stato = ''") : gs.info("VALERIO parametro stato = " + stato)
+	descrizione == "" ?  gs.info("VALERIO Errore nella ricezione del parametro: descrizione = ''") : gs.info("VALERIO parametro descrizione = " + descrizione)
+	data == "" ?  gs.info("VALERIO Errore nella ricezione del parametro: data = ''") : gs.info("VALERIO parametro data = " + data);
+
+	if(numero !="" && stato != "" && descrizione != "" && data !="")
+	{
+	var gr = new GlideRecord("u_monitoring");
+	gr.initialize();
+	gr.u_number_incident = numero;
+	gr.u_data_di_completamento = data;
+	gr.u_descrizione = descrizione;
+	gr.u_stato = stato;
+    recordSysId= gr.insert();
+	} else {
+		return "La chiamata non ha avuto successo"
+	}
+	
+	return "La chiamata ha avuto successo " + recordSysId;
+})(request, response);

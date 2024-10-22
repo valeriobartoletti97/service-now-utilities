@@ -1,0 +1,11 @@
+gs.info("VALERIO QUESTO è IL SYS ID DELL' INCIDENT = " + current.number.toString())
+ try { 
+ var r = new sn_ws.RESTMessageV2('Incident Closed', 'Send Incident');
+ r.setRequestBody('{"descrizione": "'+current.short_description.toString()+'","numero":"'+ current.number.toString() +'","data" : "'+ new GlideDate().toString() + '","stato": "Closed"}');
+ var response = r.execute();
+ var responseBody = response.getBody();
+ var httpStatus = response.getStatusCode();
+}
+catch(ex) {
+ var message = ex.message;
+}
