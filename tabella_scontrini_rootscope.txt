@@ -1,0 +1,446 @@
+<!-- HTML -->
+
+
+<div>
+    <div class="container">
+     <!-- <div>Rootscope : {{$root.shopAssistant}}</div> --> 
+      <div ng-if="c.feedback == true" class="alert alert-primary text-center position-relative mt-2" role="alert">
+          <h4 class="alert-heading py-4">Modifiche apportate con successo!</h4>
+          <i class="fa-solid fa-xmark position-absolute" ng-click="c.feedback = ''"></i>
+        </div>
+        <div ng-if="c.feedback === false" class="alert alert-danger text-center position-relative mt-2 " role="alert">
+          <h4 class="alert-heading py-4">Ops, si è verificato un problema!</h4>
+          <i class="fa-solid fa-xmark position-absolute" ng-click="c.feedback = ''"></i>
+        </div>
+      <!-- Modal Show -->
+      <div class="modal" tabindex="-1" role="dialog" ng-if="c.modal">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+           <div class="modal-header">
+              <h5 class="modal-title">Dettagli scontrino</h5>
+            </div>
+            <div class="modal-body">
+              <p>
+                <div class="mb-3">
+                  <label for="receip-id-show" class="form-label">Scontrino Id</label>
+                  <input type="text" class="form-control" id="receip-id-show" ng-model="c.receipId" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-date-show" class="form-label">Data ingresso</label>
+                  <input type="text" class="form-control" id="receip-date-show" ng-model="c.date" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-state-show" class="form-label">Stato</label>
+                  <input type="text" class="form-control" id="receip-state-show" ng-model="c.state" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-client-r-show" class="form-label">Cliente ricorrente</label>
+                  <input type="text" class="form-control" id="receip-client-r-show" value="No" ng-if="c.recurrentClient == 'false'" readonly>
+                  <input type="text" class="form-control" id="receip-client-r-show" value="Si" ng-if="c.recurrentClient == 'true'" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-client-update" class="form-label">Cliente</label>
+                  <input type="text" class="form-control" id="receip-client-update" ng-model="c.client" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-customer-show" class="form-label">Commesso</label>
+                  <input type="text" class="form-control" id="receip-customer-show" ng-model="c.customer" readonly>
+                </div>
+               <div class="mb-3">
+                  <label for="receip-total-show" class="form-label">Totale</label>
+                  <input type="text" class="form-control" id="receip-total-show" ng-model="c.total" readonly>
+                </div>
+               <div class="mb-3">
+                  <label for="receip-n-products-show" class="form-label">Numero prodotti</label>
+                  <input type="text" class="form-control" id="receip-n-products-show" ng-model="c.productsNumber" readonly>
+                </div>
+              </p>
+            </div>
+            <div class="modal-footer">
+              <div class="justify-content-center align-items-center">
+                <button type="button" class="btn btn-secondary" ng-click="c.modal=false">Chiudi</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modal Update-->
+      <div class="modal" tabindex="-1" role="dialog" ng-if="c.modalUpdate">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+           <div class="modal-header">
+              <h5 class="modal-title">Modifica scontrino</h5>
+             <span class="text-uppercase text-danger ms-4 " ng-if="c.alreadyPayed === true">Lo scontrino è già stato calcolato</span>
+            </div>
+            <div class="modal-body">
+              <p>
+                <div class="mb-3">
+                  <label for="receip-id-update" class="form-label">Scontrino Id</label>
+                  <input type="text" class="form-control" id="receip-id-update" ng-model="c.receipId" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-date-update" class="form-label">Data ingresso</label>
+                  <input type="date" id="receip-date-update" class="form-control" ng-model="c.dateValue" min="2024-09-12" max="{{c.todaysDate}}" ng-change="c.parseDate()" ng-readonly="c.stateValue == 'calcolato'"/>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-state-update" class="form-label">Stato</label>
+                  <select class="form-control" id="receip-state-update" aria-label="Default select example" ng-model="c.stateValue" ng-readonly="c.stateValue == 'calcolato'">
+                    <option value="entrato_in_negozio" ng-selected="c.stateValue == 'entrato_in_negozio'">Entrato in negozio</option>
+                    <option value="calcolato" ng-selected="c.stateValue == 'calcolato'">Calcolato</option>
+                    <option value="uscito_senza_comprare" ng-selected="c.stateValue == 'uscito_senza_comprare'">Uscito senza comprare</option>
+                    <option value="pagato" ng-selected="c.stateValue == 'pagato'">Pagato</option>
+                  </select>
+                 </div>
+                <div class="mb-3">
+                  <label for="receip-client-r-update" class="form-label">Cliente ricorrente</label>
+                  <input type="text" class="form-control" id="receip-client-r-update" ng-model="c.recurrentClient" readonly>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-client-update" class="form-label">Cliente</label>
+                  <select class="form-control" aria-label="Default select example" ng-change="c.recurringClient()" ng-model="c.client" ng-options="client.sysId as client.name for client in c.data.userList" ng-readonly="c.stateValue == 'calcolato'" required>
+                    <!--<option value="{{user.sysId}}" ng-repeat="user in c.data.userList" ng-selected="c.clientValue = user.sysId">{{user.name}}</option>-->
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="receip-customer-update" class="form-label">Commesso</label>
+                  <select class="form-control" aria-label="Default select example" ng-model="c.customerValue" ng-options="customer.sysId as customer.name for customer in c.data.customerList" required ng-readonly="c.stateValue == 'calcolato'">
+                    <!--<option value="{{user.sysId}}" ng-selected="c.customerValue = user.sysId" ng-repeat="user in c.customerList">{{user.name}}</option>-->
+                  </select>
+                </div>
+               <div class="mb-3">
+                  <label for="receip-total-update" class="form-label">Totale</label>
+                  <input type="number" class="form-control" id="receip-total-update" ng-model="c.totalParsed" readonly>
+                </div>
+               <div class="mb-3">
+                  <label for="receip-n-products-update" class="form-label">Numero prodotti</label>
+                  <input type="number" class="form-control" id="receip-n-products-update" ng-model="c.productsNumberParsed" readonly>
+                </div>
+              </p>
+            </div>
+            <div class="modal-footer">
+              <div class="justify-content-center align-items-center">
+                <button type="button" class="btn btn-primary me-1" ng-click="c.saveUpdatedReceip()" ng-if="!c.alreadyPayed">Salva</button>
+                <button type="button" class="btn btn-secondary" ng-click="c.modalUpdate=false">Chiudi</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal delete-->
+      <div class="modal" tabindex="-1" role="dialog" ng-if="c.modalDelete">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+           <div class="modal-header">
+              <h5 class="modal-title">Elimina scontrino</h5>
+            </div>
+            <div class="modal-body">
+              <p>Sei sicuro di voler eliminare lo Scontrino con id: </p>
+              <span class="text-uppercase fw-bold">{{c.receipId}}?</span>
+            </div>
+            <div class="modal-footer">
+              <div class="justify-content-center align-items-center">
+                <button type="button" class="btn btn-danger me-1" ng-click="c.saveDeleteReceip()">Elimina</button>
+                <button type="button" class="btn btn-secondary" ng-click="c.modalDelete =false">Chiudi</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receips Table -->
+    <div class="row mt-2" ng-if="c.allScontrini.length == 0">
+      <span class="text-center">(Nessuno scontrino trovato)</span>
+    </div>
+      <div class="row table-container mt-5" ng-if="c.allScontrini.length > 0">
+        <div class="col-12">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Scontrino ID</th>
+                <th scope="col">Data ingresso</th>
+                <th scope="col">Stato</th>
+                <th scope="col">Cliente ricorrente</th>
+                <th scope="col">Cliente ID</th>
+                <th scope="col">Commesso</th>
+                <th scope="col">Totale</th>
+                <th scope="col">Numero Prodotti</th>
+                <th scope="col" ng-if="c.notShopAssistant != true">Azioni</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="scontrino in c.allScontrini">
+                <td>{{scontrino.id}}</td>
+                <td>{{scontrino.dataIngresso}}</td>
+                <td>{{scontrino.stato}}</td>
+                <td ng-if="scontrino.clienteR == 'false'">No</td>
+                <td ng-if="scontrino.clienteR == 'true'">Si</td>
+                <td>{{scontrino.cliente}}</td>
+                <td>{{scontrino.commesso}}</td>
+                <td>{{scontrino.totale}}</td>
+                <td>{{scontrino.numeroProdotti}}</td>
+                <td class="d-flex align-items-center" ng-if="c.notShopAssistant != true">
+                    <button type="button" class="btn btn-outline-dark me-1 d-flex align-items-center" ng-click="c.showReceip(scontrino)"><i class="fa-regular fa-eye p-1"></i></button>
+                    <button type="button" class="btn btn-outline-dark me-1 d-flex align-items-center" ng-click="c.updateReceip(scontrino)"><i class="fa-regular fa-pen-to-square p-1"></i></button>
+                    <button type="button" class="btn btn-outline-dark pt-1 d-flex align-items-center" ng-click="c.deleteReceip(scontrino)"><i class="fa-regular fa-trash-can p-1"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+<!-- SERVER SCRIPT -->
+
+(function() {
+    /* populate the 'data' object */
+    /* e.g., data.table = $sp.getValue('table'); */
+    if (input) {
+		if (input && input.action == "getAllReceipts") {
+            var getScontrini = new AllScontrini();
+            data.scontrini = getScontrini.AllScontrini(); 
+		}
+		if (input && input.action == "getUserReceipts") {
+            var userRec = new SpGetUserReceipts();
+			data.scontrini = userRec.getReceipts(input.parameter1)
+        }
+		if (input && input.action == "updateReceip") {
+            var allClients = new SpGetClients();
+			data.clientList = allClients.spGetClients();
+			var allCustomers = new SpGetCustomers();
+		    data.customerList = allCustomers.getCustomers();
+        }
+		if (input && input.action == "recurringClient") {
+            var recurringClient = new SpRecurringClient();
+			data.recurringClient= recurringClient.spRecurringClient(input.parameter1);
+        }
+		if(input && input.action == "saveUpdatedReceip"){
+			var updateReceip = new SpUpdateReceip();
+			data.response = updateReceip.updateReceip(input.parameter1);
+			var updatedReceips = new AllScontrini();
+			data.scontrini = updatedReceips.AllScontrini();
+		}
+		if(input && input.action == "deleteReceip"){
+			var deleteReceip = new SpDeleteReceip();
+			data.response = deleteReceip.deleteReceip(input.parameter1);
+			var receipsAfterDelete = new AllScontrini();
+			data.scontrini = receipsAfterDelete.AllScontrini();
+		}
+    } else {
+		data.userRoles = gs.getUser().getRoles();
+		data.userSysId= gs.getUserID();
+        data.scontrini = [];
+    }
+})();
+
+
+
+
+<!-- CLIENT SCRIPT -->
+
+
+api.controller = function($rootScope, $scope) {
+    /* widget controller */
+    var c = this;
+    c.allScontrini = c.data.scontrini
+    c.receipId = "";
+    c.date = "";
+    c.dateValue = "";
+    c.state = "";
+    c.alreadyPayed = false;
+    c.recurrentClient = "";
+    c.client = "";
+    c.clientValue = "";
+    c.customer = "";
+    c.customerValue = "";
+    c.total = "";
+    c.productsNumber = "";
+    c.modal = false;
+    c.modalUpdate = false;
+    c.modalDelete = false;
+    c.feedback = '';
+    c.userSysId = c.data.userSysId;
+	c.notShopAssistant = true;
+	console.log("shopassistant = "+ $rootScope.shopAssistant);
+
+    c.getUserReceipts = function() {
+		console.log("c.userSysId = " + c.userSysId);
+        c.server.get({
+            parameter1: c.userSysId,
+            action: "getUserReceipts"
+        }).then(function(response) {
+            c.allScontrini = response.data.scontrini;
+        });
+    };
+
+	c.getAllReceipts = function() {
+        c.server.get({
+            action: "getAllReceipts"
+        }).then(function(response) {
+            c.allScontrini = response.data.scontrini;
+        });
+    };
+    
+	if ($rootScope.shopAssistant != true) {
+        c.getUserReceipts();
+		c.notShopAssistant = true;
+	} else{
+		c.getAllReceipts();
+		c.notShopAssistant = false;
+	}
+
+    c.saveUpdatedReceip = function() {
+        //OGGETTO SCONTRINO DA SALVARE 
+        c.feedback = '';
+        c.modalUpdate = false;
+        c.receiptoUpdate = {};
+        c.receiptoUpdate.id = c.receipId;
+        c.receiptoUpdate.dateValue = c.dateValue;
+        c.receiptoUpdate.state = c.stateValue;
+        c.receiptoUpdate.recurrentClient = c.recurrentClient;
+        c.receiptoUpdate.clientValue = c.client;
+        c.receiptoUpdate.customerValue = c.customerValue;
+        console.log("Oggetto " + JSON.stringify(c.receiptoUpdate));
+        c.server.get({
+            parameter1: c.receiptoUpdate,
+            action: "saveUpdatedReceip"
+        }).then(function(response) {
+            console.log(response.data.response);
+            c.feedback = response.data.response;
+            c.allScontrini = response.data.scontrini;
+            if (c.feedback == false) {
+                c.feedback = false;
+            }
+            //alert(c.updateMessage);
+            //location.reload();
+        });
+    };
+
+    /*$scope.$on('refreshReceip', function () {
+	//console.log("entrato nella funzione di refresh broadcast")
+            console.log("dati in refresh");
+		    location.reload();
+    });*/
+    c.showReceip = function(receip) {
+        c.feedback = '';
+        c.modal = false;
+        c.receipId = receip.id;
+        //console.log("ReceipId nello show:" +c.receipId)
+        c.date = receip.dataIngresso;
+        c.state = receip.stato;
+        //c.recurrentClient = receip.clienteR;
+        c.client = receip.cliente;
+        c.customer = receip.commesso;
+        c.total = receip.totale;
+        c.productsNumber = receip.numeroProdotti;
+        c.modal = true;
+    };
+
+    c.updateReceip = function(receip) {
+        c.feedback = '';
+        c.modalUpdate = false;
+        c.modal = false;
+        c.receipId = receip.id;
+        //console.log("receip id nell'update:" + c.receipId)
+        c.date = receip.dataIngresso;
+        c.dateValue = new Date(receip.dataIngresso);
+        //console.log("C.datevalue = " +c.dateValue);
+        c.state = receip.stato;
+        console.log("c. state = " + c.state);
+        c.stateValue = receip.statoValue;
+        if (c.stateValue == "calcolato") {
+            c.alreadyPayed = true;
+        } else {
+            c.alreadyPayed = false
+        };
+        c.recurrentClient = receip.clienteR;
+        c.client = receip.clienteValue;
+        //console.log("Cliente value =" + receip.clienteValue); Funziona
+        //c.clientValue = receip.clienteValue;
+        //console.log("C.clientValue = " + c.clientValue); c.clientValue corretto
+        c.customer = receip.commesso;
+        c.customerValue = receip.commessoValue;
+        c.totalParsed = +receip.totale;
+        c.productsNumberParsed = +receip.numeroProdotti;
+        c.productsNumber = receip.numeroProdotti;
+        c.server.get({
+            action: "updateReceip"
+        }).then(function(response) {
+            //Process your response
+            c.data.userList = response.data.clientList;
+            c.data.customerList = response.data.customerList;
+            //console.log(c.data.userList);
+            //console.log(response.data.customerList);
+            //console.log(c.data.customerList);
+            //console.log("Commesso= " +  c.customer)
+            c.modalUpdate = true;
+        });
+    };
+    c.recurringClient = function() {
+        c.server.get({
+            parameter1: c.client,
+            action: "recurringClient"
+        }).then(function(response) {
+            //Process your response
+            //console.log(c.client);
+            c.data.recurringClient = response.data.recurringClient.toString();
+            c.recurrentClient = c.data.recurringClient;
+            console.log("Il cliente è ricorrente: " + c.recurrentClient);
+            //console.log("Il cliente è ricorrente: " + c.data.recurringClient);
+            console.log("c.client selezionato = " + c.client);
+        });
+    };
+
+    c.deleteReceip = function(receip) {
+        c.feedback = '';
+        c.modalDelete = true;
+        c.receipId = receip.id;
+        //console.log("c.receip id="+c.receipId);
+    };
+
+    c.saveDeleteReceip = function() {
+        c.feedback = '';
+        c.server.get({
+            parameter1: c.receipId,
+            action: "deleteReceip"
+        }).then(function(response) {
+            console.log("La risposta è:" + response.data.response);
+            if (response.data.response == true) {
+                c.modalDelete = false;
+                c.allScontrini = response.data.scontrini;
+                c.feedback = true;
+                //alert("Record eliminato");
+                //location.reload();
+            } else {
+                c.modalDelete = false;
+                c.feedback = false;
+            }
+        })
+    }
+    //DATE 
+    c.dateToday = new Date();
+    c.dataParsed;
+    //prendo la data di oggi
+    c.convertDate = function(date) {
+        c.yyyy = date.getFullYear().toString();
+        c.mm = (date.getMonth() + 1).toString();
+        c.dd = date.getDate().toString();
+
+        c.mmChars = c.mm.split('');
+        c.ddChars = c.dd.split('');
+
+        return c.yyyy + '-' + (c.mmChars[1] ? c.mm : "0" + c.mmChars[0]) + '-' + (c.ddChars[1] ? c.dd : "0" + c.ddChars[0]);
+    };
+
+    c.todaysDate = c.convertDate(c.dateToday);
+
+    c.parseDate = function() {
+        c.dataParsed = new Date(c.dateValue + "z").toISOString().split('T')[0];
+        console.log(c.dataParsed);
+    };
+};

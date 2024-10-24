@@ -1,0 +1,215 @@
+<!--HTML-->
+
+
+
+<div class="w-100 bg-light d-flex flex-md-column flex-row gap-5 gap-md-0" id="side-section">
+  
+<!-- your widget template -->
+  
+  <div class="row d-none d-md-block">
+    <input type="text" class="form-control col-10 text-center py-5" id="search-pokemon" ng-model="c.searchedPokemon" ng-change="c.searchPokemon()" placeholder="Select a pokemon">
+  </div>
+
+  <hr class="mb-3">
+
+  <!-- CARD -->
+  <div class="my-card d-flex py-3 my-2" ng-repeat="pokemon in c.pokemons" ng-click="c.selectPokemon(pokemon)" ng-class="{'active' : c.pokemonSelected === pokemon}">
+    <div class="card-img-wrapper d-flex">
+      <img class="card-img" alt="{{pokemon.name}}" src="{{pokemon.image}}"/>
+    </div>
+    <div class="d-card-description w-100 text-center d-flex flex-column align-items-center justify-content-center">
+      <div>
+        <h3 class="card-id">{{pokemon.id}}</h3>
+        <h3 class="card-name">{{pokemon.name}}</h3>
+      </div>
+    </div>
+  </div>
+  
+  
+</div>
+
+
+<!-- CSS -->
+
+
+$secondary: rgba(255, 187, 104, 1) !default;
+$primary: rgba(208, 187, 243, 1) !default;
+$accessory: rgba(162, 133, 217, 1) !default;
+$selected: rgba(255, 172, 4, 1) !default;
+$background: rgba(253, 255, 254, 1) !default;
+$orange-pantone: rgba(255, 92, 20, 1) !default;
+$ut-orange: rgba(255, 138, 27, 1) !default;
+$gold: rgba(252, 213, 20, 1) !default;
+$yellow-green: rgba(152, 218, 0, 1) !default;
+$lime-green: rgba(31, 210, 36, 1) !default;
+$my-blue: rgba(0, 115, 204) !default;
+
+
+input[type="text"]:focus{
+  border-color: $selected;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(255, 172, 4, 0.6);
+  outline: 0 none;
+  border-radius: 10px;
+}
+
+#search-pokemon{
+  font-size: 1.2em;
+}
+
+.active{
+  background-color:$selected;
+}
+.bg-orange-pantone{
+  background-color: $orange-pantone;
+}
+.bg-ut-orange{
+  background-color: $ut-orange;
+}
+.bg-gold{
+  background-color: $gold;
+}
+.bg-yellow-green{
+  background-color: $yellow-green;
+}
+.bg-lime-green{
+  background-color: $lime-green;
+}
+
+hr{
+  width: 80%;
+  margin: 0 auto;
+  color:rgba(255, 172, 4, 1);
+  height: 4px;
+}
+
+.card-img,.stats-badge{
+  transition: 0.4s;
+  -webkit-filter:  drop-shadow(2px 2px 3px black) !important;
+  filter: drop-shadow(2px 2px 3px gray) !important;
+}
+.my-card{
+  border-radius:20px
+}
+.my-card:hover{
+  background-color:$selected;
+  cursor:pointer;
+}
+#side-section{
+  border-radius: 10px;
+  position:absolute;
+  top:0;
+  right:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  height: 100%
+}
+
+.card-img-wrapper{
+    width:100px;
+    overflow:hidden;
+}
+.card-img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+.my-card{
+    width:70%;
+    margin:0 auto;
+}
+.card-id{
+    color: rgb(155, 155, 155);
+    font-weight: 400
+}
+
+@media screen and (max-width: 900px) {
+  .main-pokemon-description{
+    inline-size: 200px;
+  }
+  .card-img-wrapper{
+    display:none !important
+  }
+  .main-stats-before{
+    display: none !important;
+  }
+}
+@media screen and (max-width: 768px) {
+  #side-section{
+    height: 80px;
+    overflow-y:hidden;
+    overflow-x:auto;
+    position:static;
+  }
+}
+@media screen and (max-width: 576px){
+  #side-section{
+    height:65px;
+  }
+}
+
+
+
+
+<!-- SERVER SCRIPT -->
+
+(function() {
+  /* populate the 'data' object */
+  /* e.g., data.table = $sp.getValue('table'); */
+  if(input){
+	if(input && input.action == "searchPokemon"){
+		var pokemonSearched = new SpSearchPokemon()
+	    data.pokemonsAfterSearch = pokemonSearched.searchPokemon(input.parm1);
+	}
+  }
+  else{
+	var allPokemon = new SpAllPokemon()
+	data.pokemons = allPokemon.getAllPokemon()
+  }
+})();
+
+
+<!-- CLIENT CONTROLLER -->
+
+
+api.controller=function($rootScope,$scope) {
+  /* widget controller */
+  var c = this;
+   c.pokemons = c.data.pokemons;
+  c.pokemonsFiltered;
+  c.pokemonSelected = c.pokemons[5];
+  c.searchedPokemon = '';
+  $rootScope.pokemons = c.pokemons;
+  $rootScope.pokemonSelected = c.pokemonSelected;
+
+  console.log(c.pokemons)
+
+  c.searchPokemon = function(){
+	c.server.get({
+		action: "searchPokemon",
+		parm1: c.searchedPokemon.toLowerCase()
+	}).then(function(response) {
+            //console.log(response.data);
+			c.pokemons = response.data.pokemonsAfterSearch;
+			console.log(c.pokemons)
+        });
+  };
+  c.filterPokemon = function (str){
+	c.pokemons = c.data.pokemons
+	str = str.toLowerCase();
+	console.log("stringa:" + str)
+	c.pokemons = c.pokemons.filter(function(pokemon){
+		var index = pokemon.name.includes(str, 0 )
+		if (index >= 0 ){
+			return index;
+		}
+		$rootScope.pokemons = c.pokemons
+	})
+	console.log(c.pokemons)
+  }
+  c.selectPokemon = function(pokemon){
+	c.pokemonSelected = pokemon;
+	$rootScope.$broadcast("selected_pokemon", c.pokemonSelected)
+	//$rootScope.pokemonSelected = c.pokemonSelected;
+	console.log("Rootscope pokemon selected in search bar:" + JSON.stringify(c.pokemonSelected))
+  };
+};

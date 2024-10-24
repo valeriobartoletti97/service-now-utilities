@@ -1,0 +1,76 @@
+var SpAllPokemon = Class.create();
+SpAllPokemon.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+    getAllPokemon: function() {
+        var pokemons = [];
+        var gr = new GlideRecord('u_pokemon');
+        var i = 0;
+        var currentPage = 1;
+		gr.orderBy("u_number");
+        gr.query();
+        while (gr.next()) {
+            i++;
+            if (i == 6) {
+                currentPage++;
+                i = 1;
+            }
+            var pokemon = {};
+            pokemon.sysId = gr.getUniqueValue();
+            pokemon.id = gr.u_number.toString();
+            pokemon.height = gr.u_height.toString();
+            pokemon.weight = gr.u_weight.toString();
+            pokemon.image = gr.u_image.toString();
+			pokemon.description = gr.u_description.toString();
+			pokemon.hp = gr.u_hp.toString();
+			pokemon.attack = gr.u_attack.toString();
+			pokemon.defense = gr.u_defense.toString();
+			pokemon.specialAttack = gr.u_special_attack.toString();
+			pokemon.specialDefense = gr.u_special_defense.toString();
+			pokemon.speed = gr.u_speed.toString();
+
+
+            //setType
+
+            pokemon.type = [];
+            stringType = gr.u_type.toString();
+            stringType = stringType.replace("[", "").replace("]", "").replaceAll("'", "").replace(" ", "");
+            isNotSingleType = stringType.includes(",")
+            if (isNotSingleType) {
+                var splittedString = stringType.split(',')
+                splittedString.forEach(function(obj) {
+                    pokemon.type.push(obj);
+                });
+            } else {
+                pokemon.type = stringType
+            }
+
+            //setabilities
+
+            pokemon.abilities = [];
+            stringAbilities = gr.u_abilities.toString();
+            stringAbilities = stringAbilities.replace("[", "").replace("]", "").replaceAll("'", "").replace(" ", "");
+            pokemon.isNotSingleType = stringType.includes(",")
+            if (pokemon.isNotSingleType) {
+                var splittedStringAbilities = stringAbilities.split(',')
+                splittedStringAbilities.forEach(function(obj) {
+                    pokemon.abilities.push(obj);
+                });
+            } else {
+                pokemon.abilities = stringAbilities
+            }
+            //gs.info(typeof pokemon.type)
+
+            //pokemon name
+            var word = gr.u_name.toString();
+            var firstLetterCap = word.charAt(0).toUpperCase();
+            var remainingLetters = word.slice(1);
+            var capitalizedWord = firstLetterCap + remainingLetters;
+            pokemon.name = capitalizedWord;
+            //gs.info("VALERIO POKEMON NAME = "+ pokemon.name);
+
+            //gs.info(JSON.stringify(pokemon))
+            pokemons.push(pokemon);
+        }
+        return pokemons;
+    },
+    type: 'SpAllPokemon'
+});
