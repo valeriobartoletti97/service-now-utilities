@@ -1,0 +1,30 @@
+function onCondition() {
+    var fornitore = g_form.getDisplayBox('u_fornitore').value;
+    var ga = new GlideAjax('global.isFornitureManager'); //Scriptinclude
+    ga.addParam("sysparm_name", "isFornitureManager");
+    ga.addParam("sysparm_buildingid", fornitore); //Method
+    ga.getXMLAnswer(getResponse);
+
+	/*var stato = g_form.getValue("u_stato");
+	if (stato === "assegnata"){
+		var newGa = new GlideAjax('global.richiestaNotAssegnata'); //Scriptinclude
+        newGa.addParam("sysparm_name", "isEditable");
+        newGa.addParam("sysparm_buildingid", fornitore); //Method
+        newGa.getXMLAnswer(descriptionEditable);
+	}else {
+        g_form.setReadOnly('u_descrizione', true);
+	}*/
+
+	function getResponse(answer) {
+        if (answer !== "true") {
+            g_form.setReadOnly('u_stato', true);
+            g_form.setReadOnly('u_assegnata_a', true);
+        }
+    }
+	
+	/*function descriptionEditable(answer){
+		if(answer !== "true"){
+        g_form.setReadOnly('u_descrizione', true);
+		}
+	}*/
+}

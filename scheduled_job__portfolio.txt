@@ -1,0 +1,243 @@
+var gr = new GlideRecord ("sn_align_core_project");
+var newGr = new GlideRecord("sn_align_core_dependency")
+var portfolioSysId = "c45ec97683419210d69effefeeaad371"
+
+gr.initialize();
+gr.short_description = "COMPLETAMENTO";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-05-15");
+gr.planning_state = "prioritized";
+gr.status = "red";
+gr.pm_portfolio = portfolioSysId;
+var completamentoId = gr.insert()
+
+gr.initialize();
+gr.short_description = "ANALISI";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.status = "red";
+gr.planning_state = "prioritized";
+gr.pm_portfolio = portfolioSysId;
+var analisiId = gr.insert()
+
+gr.initialize();
+gr.short_description = "SVILUPPO";
+gr.approved_start_date = new GlideDate("2024-02-26")
+gr.approved_end_date = new GlideDate("2024-03-31");
+gr.status = "red";
+gr.planning_state = "prioritized";
+gr.pm_portfolio = portfolioSysId;
+var sviluppoId = gr.insert()
+
+gr.initialize();
+gr.short_description = "TEST";
+gr.approved_start_date = new GlideDate("2024-04-01")
+gr.approved_end_date = new GlideDate("2024-04-30");
+gr.status = "red";
+gr.planning_state = "prioritized";
+gr.pm_portfolio = portfolioSysId;
+var testId = gr.insert()
+
+gr.initialize();
+gr.short_description = "PRODUZIONE";
+gr.approved_start_date = new GlideDate("2024-05-01")
+gr.approved_end_date = new GlideDate("2024-05-15");
+gr.status = "red";
+gr.planning_state = "prioritized";
+gr.pm_portfolio = portfolioSysId;
+var produzioneId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Stima";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var stimaId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Modello dati";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var modelloDatiId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Soluzione";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var soluzioneId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Implementazione";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var implementazioneId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Utilizzo Tecnologia";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var utilizzoTecnologiaId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Creazione Test";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var creazioneTestId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Bug Fixing";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var bugFixingId = gr.insert()
+
+gr.initialize();
+gr.short_description = "WorkAround";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var workAroundId = gr.insert()
+
+gr.initialize();
+gr.short_description = "Installazione";
+gr.approved_start_date = new GlideDate("2024-01-06")
+gr.approved_end_date = new GlideDate("2024-02-25");
+gr.planning_state = "new";
+gr.pm_portfolio = portfolioSysId;
+gr.status = "red";
+var installazioneId = gr.insert()
+
+//gs.info(JSON.stringify(projects))
+
+//Creazione dependencies 
+
+//ORIZZONTALI
+
+newGr.initialize();
+newGr.requester_planning_item = sviluppoId;
+newGr.provider_planning_item = analisiId;
+newGr.relationship_type = "depends_on"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = testId;
+newGr.provider_planning_item = sviluppoId;
+newGr.relationship_type = "depends_on"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = produzioneId;
+newGr.provider_planning_item = testId;
+newGr.relationship_type = "depends_on"
+newGr.insert();
+
+//VERTICALI
+
+//Completamento
+
+newGr.initialize();
+newGr.requester_planning_item = completamentoId;
+newGr.provider_planning_item = analisiId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = completamentoId;
+newGr.provider_planning_item = sviluppoId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = completamentoId;
+newGr.provider_planning_item = testId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = completamentoId;
+newGr.provider_planning_item = produzioneId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+//Analisi
+
+newGr.initialize();
+newGr.requester_planning_item = analisiId;
+newGr.provider_planning_item = stimaId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = analisiId;
+newGr.provider_planning_item = modelloDatiId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = analisiId;
+newGr.provider_planning_item = soluzioneId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+//Sviluppo
+
+newGr.initialize();
+newGr.requester_planning_item = sviluppoId;
+newGr.provider_planning_item = implementazioneId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = sviluppoId;
+newGr.provider_planning_item = utilizzoTecnologiaId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+//TEST
+
+newGr.initialize();
+newGr.requester_planning_item = testId;
+newGr.provider_planning_item = creazioneTestId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = testId;
+newGr.provider_planning_item = bugFixingId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+newGr.initialize();
+newGr.requester_planning_item = testId;
+newGr.provider_planning_item = workAroundId;
+newGr.relationship_type = "relates_to"
+newGr.insert();
+
+//Produzione
+
+newGr.initialize();
+newGr.requester_planning_item = produzioneId;
+newGr.provider_planning_item = installazioneId;
+newGr.relationship_type = "relates_to"
+newGr.insert();

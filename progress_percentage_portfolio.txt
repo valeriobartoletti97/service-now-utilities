@@ -1,0 +1,43 @@
+(function executeRule(current, previous /*null when async*/ ) {
+        current.status = "green"
+        var projectId = current.sys_id.toString();
+        var totalTask = 0;
+        var gr = new GlideRecord("sn_align_core_dependency");
+        gr.addEncodedQuery("provider_planning_item=" + projectId);
+        gr.query();
+        while (gr.next()) {
+            if (gr.relationship_type == "relates_to") {
+                var mainProjectId = gr.requester_planning_item.toString();
+                var newGr = new GlideRecord("sn_align_core_dependency");
+                newGr.addEncodedQuery("requester_planning_item=" + mainProjectId);
+                newGr.query();
+                while (newGr.next()) {
+                    if (newGr.relationship_type == "relates_to") {
+                        totalTask++;
+                    }
+                }
+                gs.info("VALERIO QUESTE SONO LE TASK TOTALI = " + totalTask)
+                var completePercentage = (1 / totalTask) * 100;
+                var percentageToAdd = Number(completePercentage.toFixed(2));
+                //var percentageReached
+
+                var grPr = new GlideRecord("sn_align_core_project");
+                grPr.addEncodedQuery("sys_id=" + mainProjectId);
+                grPr.query();
+                if (grPr.next()) {
+                    gs.info("VALERIO PERCENT COMPLETE PRIMA = " + grPr.percent_complete)
+                    grPr.percent_complete = Number(grPr.percent_complete) + percentageToAdd;
+                    //percentageReached = Number(grPr.percent_complete) + percentageToAdd;
+                    gs.info("VALERIO PERCENT COMPLETE DOPO = " + grPr.percent_complete)
+                    grPr.update();
+                }
+                /*if (percentageReached == "99,99") {
+				gs.info("VALERIO ENTRATO IN PERCENTAGE = 99 e " + grPr.percent_complete);
+                grPr.percent_complete = 100;
+                grPr.update()
+            }*/
+            }
+        }
+    
+
+})(current, previous);

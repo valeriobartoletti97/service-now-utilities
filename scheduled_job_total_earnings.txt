@@ -1,0 +1,49 @@
+var gr = new GlideRecord("u_scontrino");
+gr.addEncodedQuery("u_stato=calcolato^u_data_ingressoONToday@javascript:gs.beginningOfToday()@javascript:gs.endOfToday()");
+gr.query();
+var totalEarnings = 0;
+var totalSmartphones = 0;
+var totalTVs = 0;
+var totalComputers = 0;
+while (gr.next()) {
+    var prodScontr = new GlideRecord("u_prodotto_scontrino");
+    var scontrinoID = gr.getUniqueValue("u_scontrino_id");
+    //gs.info("VALERIO SCONTRINO ID PER GUADAGNI GIORNALIERI = " + scontrinoID);
+    prodScontr.addEncodedQuery("u_scontrino_id=" + scontrinoID);
+    prodScontr.query();
+    while (prodScontr.next()) {
+        var prodQuantity = prodScontr.u_quantita;
+        var prodGr = new GlideRecord("u_prodotto");
+        var productID = prodScontr.u_prodotto_id.getValue();
+        //gs.info("VALERIO PRODUCT ID PER GUADAGNI GIORNALIERI = " + productID);
+        prodGr.addEncodedQuery("sys_id=" + productID);
+        prodGr.query();
+        if (prodGr.next()) {
+            var productType = prodGr.u_type;
+            //gs.info("VALERIO IL TIPO DI PRODOTTO E' " + productType);
+            if (productType == "smartphone") {
+                totalSmartphones += prodQuantity;
+            }
+            if (productType == "computer") {
+                totalComputers += prodQuantity;
+            }
+            if (productType == "tv") {
+                totalTVs += prodQuantity;
+            }
+        }
+    }
+    totalEarnings += gr.u_totale;
+}
+//insert new storic record
+var storicGr = new GlideRecord("u_storico_negozio")
+storicGr.initialize();
+storicGr.u_numero_smartphone = totalSmartphones;
+storicGr.u_numero_tv = totalTVs;
+storicGr.u_numero_computer = totalComputers;
+storicGr.u_totale_guadagni = totalEarnings;
+storicGr.insert();
+
+gs.info("VALERIO TOTALE SMARTPHONE VENDUTI OGGI : " + totalSmartphones);
+gs.info("VALERIO TOTALE TV VENDUTE OGGI : " + totalTVs);
+gs.info("VALERIO TOTALE COMPUTER VENDUTI OGGI : " + totalComputers);
+gs.info("VALERIO GUADAGNO GIORNALIERO " + totalEarnings);
